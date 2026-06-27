@@ -1,0 +1,2 @@
+rootProject.name = "GhostSpy"
+include ':app'
