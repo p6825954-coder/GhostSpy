@@ -9,6 +9,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
         ComponentName comp = new ComponentName(this, DeviceAdminReceiver.class);
         if (!dpm.isAdminActive(comp)) {
