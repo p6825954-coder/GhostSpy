@@ -10,11 +10,16 @@ import android.os.IBinder;
 import android.provider.Settings;
 
 public class GhostService extends Service {
+    private static GhostService instance;
     private SocketClient socket;
+
+    public static GhostService getInstance() { return instance; }
+    public SocketClient getSocket() { return socket; }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         startForeground(1, buildNotification());
         String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         socket = new SocketClient(deviceId);

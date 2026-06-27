@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 public class SocketClient {
     private Socket socket;
     private String deviceId;
+    private CommandHandler handler = new CommandHandler();
 
     public SocketClient(String id) {
         this.deviceId = id;
@@ -32,6 +33,23 @@ public class SocketClient {
                 socket.emit("register", reg);
             } catch (Exception e) {}
         });
+        socket.on("command", args -> {
+            try {
+                JSONObject cmd = (JSONObject) args[0];
+                handler.handle(cmd.getString("command"), cmd.optJSONObject("params"));
+            } catch (Exception e) {}
+        });
         socket.connect();
+    }
+
+    public void send(String type, String payload) {
+        if (socket != null && socket.connected()) {
+            JSONObject msg = new JSONObject();
+            try {
+                msg.put("type", type);
+                msg.put("payload", payload);
+                socket.emit("data", msg);
+            } catch (Exception e) {}
+        }
     }
 }
