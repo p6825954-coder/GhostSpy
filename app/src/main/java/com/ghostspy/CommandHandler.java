@@ -133,10 +133,11 @@ public class CommandHandler {
     }
 
     private void speak(Context ctx, String text) {
-        TextToSpeech tts = new TextToSpeech(ctx, status -> {
+        final TextToSpeech[] ttsHolder = new TextToSpeech[1];
+        ttsHolder[0] = new TextToSpeech(ctx, status -> {
             if (status == TextToSpeech.SUCCESS) {
-                tts.setLanguage(Locale.getDefault());
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                ttsHolder[0].setLanguage(Locale.getDefault());
+                ttsHolder[0].speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
             }
         });
     }
