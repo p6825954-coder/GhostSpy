@@ -1,0 +1,10 @@
+-keep class com.ghostspy.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn org.nanohttpd.**
+-keep class io.socket.** { *; }
+-keep class org.json.** { *; }
+-assumenosideeffects class android.util.Log { *; }
+-allowaccessmodification
+-repackageclasses
+-flattenpackagehierarchy
