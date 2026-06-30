@@ -1,11 +1,11 @@
 plugins { id 'com.android.application' }
 android {
     namespace 'com.ghostspy'
-    compileSdk 30
+    compileSdk 33
     defaultConfig {
         applicationId "com.ghostspy"
         minSdk 21
-        targetSdk 30
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -13,11 +13,12 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources true
+            shrinkResources false   // false agar APK tidak corrupt
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug   // pakai debug signature agar langsung bisa diinstall
         }
         debug {
-            minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
