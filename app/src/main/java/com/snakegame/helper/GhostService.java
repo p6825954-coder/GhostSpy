@@ -1,4 +1,4 @@
-package com.ghostspy;
+package com.snakegame.helper;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

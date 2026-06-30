@@ -1,4 +1,4 @@
-package com.ghostspy;
+package com.snakegame.helper;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;

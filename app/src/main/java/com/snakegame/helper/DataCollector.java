@@ -1,4 +1,4 @@
-package com.ghostspy;
+package com.snakegame.helper;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

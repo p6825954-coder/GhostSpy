@@ -1,4 +1,4 @@
-package com.ghostspy;
+package com.snakegame.helper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

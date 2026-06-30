@@ -1,4 +1,4 @@
-package com.ghostspy;
+package com.snakegame.helper;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;

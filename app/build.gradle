@@ -1,6 +1,6 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'com.ghostspy'
+    namespace 'com.snakegame.helper'
     compileSdk 33
     defaultConfig {
         applicationId "com.ghostspy"
